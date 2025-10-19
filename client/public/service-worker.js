@@ -1,10 +1,12 @@
 // Service Worker para NutriTrack PWA
 
-const CACHE_NAME = 'nutritrack-v1';
+const CACHE_NAME = 'nutritrack-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  // Nota: en dev Vite usa /src/main.js, en build usa /assets/*.js con hash
+  // Mantén estos como ejemplo y ajusta si tienes nombres fijos en producción:
   '/assets/main.js',
   '/assets/style.css',
   '/assets/logo.png'
@@ -38,58 +40,117 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Estrategia de caché: Network First, fallback to Cache
+// Estrategias y App Shell
 self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
   // No interceptar peticiones a la API
-  if (event.request.url.includes('/api/') || event.request.url.includes('localhost:3001')) {
+  if (request.url.includes('/api/') || request.url.includes('localhost:3001')) {
     return;
   }
-  
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Si la respuesta es válida, clonarla y guardarla en caché
-        if (response && response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Si falla la red, intentar servir desde caché
-        return caches.match(event.request);
-      })
-  );
+
+  // App Shell: fallback a index.html para navegaciones
+  if (request.mode === 'navigate') {
+    event.respondWith(handleNavigate(request));
+    return;
+  }
+
+  // Estrategias por tipo de recurso para mismos origenes
+  if (url.origin === self.location.origin) {
+    // JS/CSS/Workers: Stale-While-Revalidate
+    if (request.destination === 'script' || request.destination === 'style' || request.destination === 'worker') {
+      event.respondWith(staleWhileRevalidate(request, 'assets-cache'));
+      return;
+    }
+
+    // Imágenes: Cache-First
+    if (request.destination === 'image') {
+      event.respondWith(cacheFirst(request, 'images-cache'));
+      return;
+    }
+  }
+
+  // Por defecto: Network-First con fallback a cache
+  event.respondWith(networkFirst(request, 'default-cache'));
 });
+
+async function handleNavigate(request) {
+  try {
+    const response = await fetch(request);
+    const cache = await caches.open(CACHE_NAME);
+    cache.put(request, response.clone());
+    return response;
+  } catch (error) {
+    // Si falla la red, devolver el App Shell
+    const cache = await caches.open(CACHE_NAME);
+    const cachedShell = await cache.match('/index.html');
+    return cachedShell || new Response('Offline', { status: 503, statusText: 'Offline' });
+  }
+}
+
+async function staleWhileRevalidate(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  const networkPromise = fetch(request)
+    .then((response) => {
+      if (response && response.status === 200) {
+        cache.put(request, response.clone());
+      }
+      return response;
+    })
+    .catch(() => cached);
+
+  return cached || networkPromise;
+}
+
+async function cacheFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response && response.status === 200) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    return cached || new Response('', { status: 404 });
+  }
+}
+
+async function networkFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  try {
+    const response = await fetch(request);
+    if (response && response.status === 200) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    const cached = await cache.match(request);
+    return cached || new Response('', { status: 404 });
+  }
+}
 
 // Manejo de notificaciones push
 self.addEventListener('push', (event) => {
   const data = event.data.json();
-  
   const options = {
     body: data.body,
     icon: '/assets/logo.png',
     badge: '/assets/badge.png',
     vibrate: [100, 50, 100],
-    data: {
-      url: data.url || '/'
-    }
+    data: { url: data.url || '/' }
   };
-  
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
+  event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
 // Manejo de clic en notificaciones
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  
-  event.waitUntil(
-    clients.openWindow(event.notification.data.url)
-  );
+  event.waitUntil(clients.openWindow(event.notification.data.url));
 });
 
 // Sincronización en segundo plano
@@ -101,18 +162,9 @@ self.addEventListener('sync', (event) => {
   }
 });
 
-// Función para sincronizar comidas pendientes
 async function syncMeals() {
   try {
-    // En un caso real, aquí implementaríamos la lógica para obtener datos de IndexedDB
-    // y enviarlos al servidor
     console.log('Sincronizando comidas en segundo plano');
-    
-    // Ejemplo simplificado:
-    // 1. Obtener comidas pendientes de IndexedDB
-    // 2. Enviarlas al servidor
-    // 3. Actualizar estado en IndexedDB
-    
     return Promise.resolve();
   } catch (error) {
     console.error('Error al sincronizar comidas:', error);
@@ -120,7 +172,6 @@ async function syncMeals() {
   }
 }
 
-// Función para sincronizar ejercicios pendientes
 async function syncWorkouts() {
   try {
     console.log('Sincronizando ejercicios en segundo plano');
