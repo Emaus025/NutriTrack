@@ -9,7 +9,7 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "install:all": "npm install && cd client && npm install",
     "build": "cd client && npm run build",
-    "start": "json-server --watch server/db.json --port 3001"
+    "start": "concurrently \"json-server --watch server/db.json --port 3001\" \"cd client && vite preview --port 3000 --strictPort\""
   },
   "keywords": [
     "pwa",

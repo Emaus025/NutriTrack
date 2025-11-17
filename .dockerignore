@@ -1,0 +1,12 @@
+node_modules
+client/node_modules
+.git
+.gitignore
+npm-debug.log
+dist
+client/dist
+.env
+.DS_Store
+images
+Manual Técnico Caso de estudio NutriTrack.pdf
+guia.pdf
