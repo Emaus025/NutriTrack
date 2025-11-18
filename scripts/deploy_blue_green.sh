@@ -4,10 +4,17 @@ set -euo pipefail
 IMAGE_TAG="${1:-ghcr.io/owner/repo:latest}"
 
 # Paths Nginx
-UPSTREAM_DIR="/etc/nginx/conf.d"
+UPSTREAM_DIR="/etc/nginx/nutritrack"
 ACTIVE_LINK="${UPSTREAM_DIR}/nutritrack_upstream_active.conf"
 BLUE_CONF="${UPSTREAM_DIR}/nutritrack_upstream_blue.conf"
 GREEN_CONF="${UPSTREAM_DIR}/nutritrack_upstream_green.conf"
+
+# Preflight: ensure upstream files exist
+if [ ! -f "$BLUE_CONF" ] || [ ! -f "$GREEN_CONF" ]; then
+  echo "ERROR: Missing Nginx upstream files in $UPSTREAM_DIR"
+  echo "Expected: $BLUE_CONF and $GREEN_CONF"
+  exit 1
+fi
 
 # Detección del color activo
 ACTIVE_COLOR="none"
