@@ -1,0 +1,39 @@
+name: Deploy Blue-Green to EC2
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Image"]
+    types: [ "completed" ]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload deploy script
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "scripts/deploy_blue_green.sh"
+          target: "~/nutritrack"
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            chmod +x ~/nutritrack/deploy_blue_green.sh
+            export REGISTRY_USER="${{ github.actor }}"
+            export REGISTRY_TOKEN="${{ secrets.REGISTRY_TOKEN }}"
+            IMAGE="ghcr.io/${{ github.repository }}:${{ github.sha }}"
+            ~/nutritrack/deploy_blue_green.sh "$IMAGE"
