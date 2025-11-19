@@ -2,6 +2,8 @@
 set -euo pipefail
 
 IMAGE_TAG="${1:-ghcr.io/owner/repo:latest}"
+# Normalize image reference to lowercase to satisfy GHCR requirements
+IMAGE_TAG="$(echo "$IMAGE_TAG" | tr '[:upper:]' '[:lower:]')"
 
 # Paths Nginx
 UPSTREAM_DIR="/etc/nginx/nutritrack"
@@ -12,7 +14,7 @@ GREEN_CONF="${UPSTREAM_DIR}/nutritrack_upstream_green.conf"
 # Preflight: ensure upstream files exist
 if [ ! -f "$BLUE_CONF" ] || [ ! -f "$GREEN_CONF" ]; then
   echo "ERROR: Missing Nginx upstream files in $UPSTREAM_DIR"
-  echo "Expected files: $BLUE_CONF and $GREEN_CONF"
+  echo "Expected: $BLUE_CONF and $GREEN_CONF"
   exit 1
 fi
 
