@@ -14,6 +14,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Prepare remote directory
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            mkdir -p /home/${{ secrets.SSH_USER }}/nutritrack
+
       - name: Upload deploy script
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -22,7 +32,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "scripts/deploy_blue_green.sh"
-          target: "~/nutritrack"
+          target: "/home/${{ secrets.SSH_USER }}/nutritrack"
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
@@ -32,8 +42,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            chmod +x ~/nutritrack/deploy_blue_green.sh
+            chmod +x $HOME/nutritrack/scripts/deploy_blue_green.sh
             export REGISTRY_USER="${{ github.actor }}"
             export REGISTRY_TOKEN="${{ secrets.REGISTRY_TOKEN }}"
             IMAGE="ghcr.io/${{ github.repository }}:${{ github.sha }}"
-            ~/nutritrack/deploy_blue_green.sh "$IMAGE"
+            $HOME/nutritrack/scripts/deploy_blue_green.sh "$IMAGE"
