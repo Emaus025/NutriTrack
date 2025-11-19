@@ -60,10 +60,10 @@ docker pull "$IMAGE_TAG"
 docker stop "$CONTAINER_NAME" || true
 docker rm "$CONTAINER_NAME" || true
 
-# Ejecutar nuevo contenedor del color de despliegue
+# Run container: bind host ports to container's fixed ports (3000/3001)
 docker run -d --name "$CONTAINER_NAME" --restart=always \
-  -p 127.0.0.1:${FRONT_PORT}:${FRONT_PORT} \
-  -p 127.0.0.1:${API_PORT}:${API_PORT} \
+  -p 127.0.0.1:${FRONT_PORT}:3000 \
+  -p 127.0.0.1:${API_PORT}:3001 \
   "$IMAGE_TAG"
 
 # Health-check frontend
@@ -76,11 +76,11 @@ for i in {1..30}; do
   sleep 2
 done
 
-# Alternar upstream activo
+# Alternar upstream activo (requires sudo in /etc/nginx)
 if [ "$DEPLOY_COLOR" == "blue" ]; then
-  ln -sfn "$BLUE_CONF" "$ACTIVE_LINK"
+  sudo ln -sfn "$BLUE_CONF" "$ACTIVE_LINK"
 else
-  ln -sfn "$GREEN_CONF" "$ACTIVE_LINK"
+  sudo ln -sfn "$GREEN_CONF" "$ACTIVE_LINK"
 fi
 
 # Recargar Nginx
