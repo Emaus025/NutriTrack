@@ -11,7 +11,7 @@
           type="text" 
           id="meal-name" 
           v-model="newMeal.name" 
-          placeholder="Ej: Desayuno, Almuerzo..."
+          placeholder="Ej: Desayuno, Almuerzo, Cena..."
         >
       </div>
       
