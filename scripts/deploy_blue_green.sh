@@ -85,7 +85,7 @@ fi
 
 # Recargar Nginx
 sudo nginx -t
-sudo systemctl reload nginx
+sudo systemctl restart nginx
 
 echo "Blue-Green alternado a ${DEPLOY_COLOR}. Nginx recargado."
 # Opcional: parar contenedor del color anterior (rollback más difícil si se detiene)
