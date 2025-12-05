@@ -43,17 +43,16 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^http:\/\/localhost:3001\/.*/i,
+            // Cacheo de API por mismo origen: /api/*
+            urlPattern: ({ url }) => url.origin === self.location.origin && url.pathname.startsWith('/api/'),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 // 1 día
+                maxAgeSeconds: 60 * 60 * 24
               },
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
+              cacheableResponse: { statuses: [0, 200] }
             }
           }
         ]

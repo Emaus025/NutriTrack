@@ -142,6 +142,7 @@
 
 <script>
 import syncManager from '../utils/syncManager';
+import { API_BASE } from '../utils/api';
 
 export default {
   name: 'Workouts',
@@ -206,7 +207,7 @@ export default {
       try {
         // Primero intentamos cargar desde el servidor
         if (navigator.onLine) {
-          const response = await fetch('http://localhost:3001/workouts');
+          const response = await fetch(`${API_BASE}/workouts`);
           if (response.ok) {
             const serverWorkouts = await response.json();
             this.workouts = serverWorkouts;
@@ -236,15 +237,10 @@ export default {
       if (confirm('¿Estás seguro de que quieres eliminar este ejercicio?')) {
         try {
           if (navigator.onLine) {
-            await fetch(`http://localhost:3001/workouts/${id}`, {
-              method: 'DELETE'
-            });
+            await fetch(`${API_BASE}/workouts/${id}`, { method: 'DELETE' });
           } else {
-            // En modo offline, marcar para eliminar cuando vuelva online
             await syncManager.markForDeletion('workouts', id);
           }
-          
-          // Actualizar UI inmediatamente
           this.workouts = this.workouts.filter(w => w.id !== id);
         } catch (error) {
           console.error('Error al eliminar ejercicio:', error);

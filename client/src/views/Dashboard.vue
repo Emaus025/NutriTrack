@@ -75,6 +75,7 @@
 import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { getById } from '../utils/idb';
+import { API_BASE } from '../utils/api';
 
 export default {
   name: 'Dashboard',
@@ -116,14 +117,11 @@ export default {
     // Cargar datos del usuario
     const loadUserData = async () => {
       try {
-        // Intentar cargar desde IndexedDB primero
         const userData = await getById('userData', 1);
-        
         if (userData && userData.dailyGoals) {
           userGoals.value = userData.dailyGoals;
         } else {
-          // Si no hay datos locales, cargar desde la API
-          const response = await axios.get('http://localhost:3001/users/1');
+          const response = await axios.get(`${API_BASE}/users/1`);
           userGoals.value = response.data.dailyGoals;
         }
       } catch (error) {
@@ -135,7 +133,7 @@ export default {
     const loadTodayMeals = async () => {
       try {
         const today = new Date().toISOString().split('T')[0];
-        const response = await axios.get(`http://localhost:3001/meals?date=${today}`);
+        const response = await axios.get(`${API_BASE}/meals?date=${today}`);
         recentMeals.value = response.data;
         
         // Calcular estadísticas
@@ -145,7 +143,6 @@ export default {
         dailyStats.value.fat = recentMeals.value.reduce((sum, meal) => sum + meal.fat, 0);
       } catch (error) {
         console.error('Error al cargar comidas:', error);
-        // Intentar cargar desde IndexedDB si falla la API
       }
     };
     
@@ -153,11 +150,10 @@ export default {
     const loadTodayWorkouts = async () => {
       try {
         const today = new Date().toISOString().split('T')[0];
-        const response = await axios.get(`http://localhost:3001/workouts?date=${today}`);
+        const response = await axios.get(`${API_BASE}/workouts?date=${today}`);
         recentWorkouts.value = response.data;
       } catch (error) {
         console.error('Error al cargar ejercicios:', error);
-        // Intentar cargar desde IndexedDB si falla la API
       }
     };
     

@@ -186,6 +186,7 @@
 <script>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
+import { API_BASE } from '../utils/api';
 import { SyncManager } from '../utils/idb';
 import { openCamera } from '../utils/camera';
 import { searchProductByBarcode, searchProductsByName } from '../utils/productApi';
@@ -245,7 +246,7 @@ export default {
       }
       
       try {
-        const response = await axios.get(`http://localhost:3001/foodDatabase?q=${searchQuery.value}`);
+        const response = await axios.get(`${API_BASE}/foodDatabase?q=${searchQuery.value}`);
         searchResults.value = response.data;
       } catch (error) {
         console.error('Error al buscar alimentos:', error);
@@ -297,7 +298,7 @@ export default {
         
         // Intentar guardar en el servidor
         if (navigator.onLine) {
-          await axios.post('http://localhost:3001/meals', mealToSave);
+          await axios.post(`${API_BASE}/meals`, mealToSave);
         } else {
           // Si no hay conexión, guardar offline
           await SyncManager.saveMealOffline(mealToSave);
@@ -331,7 +332,7 @@ export default {
     const loadMeals = async () => {
       try {
         const dateStr = selectedDate.value.toISOString().split('T')[0];
-        const response = await axios.get(`http://localhost:3001/meals?date=${dateStr}`);
+        const response = await axios.get(`${API_BASE}/meals?date=${dateStr}`);
         meals.value = response.data;
       } catch (error) {
         console.error('Error al cargar comidas:', error);
@@ -354,7 +355,7 @@ export default {
       }
       
       try {
-        await axios.delete(`http://localhost:3001/meals/${id}`);
+        await axios.delete(`${API_BASE}/meals/${id}`);
         loadMeals();
       } catch (error) {
         console.error('Error al eliminar la comida:', error);

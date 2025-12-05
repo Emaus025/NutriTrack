@@ -112,6 +112,8 @@
 </template>
 
 <script>
+import { API_BASE } from '../utils/api';
+
 export default {
   name: 'Profile',
   data() {
@@ -156,23 +158,9 @@ export default {
   methods: {
     async loadUserData() {
       try {
-        // Intentar cargar desde IndexedDB primero
-        const cachedUser = await this.getFromIndexedDB('user');
-        if (cachedUser) {
-          this.user = cachedUser;
-          return;
-        }
-        
-        // Si estamos online, intentar cargar desde el servidor
-        if (navigator.onLine) {
-          const response = await fetch('http://localhost:3001/users/1');
-          if (!response.ok) throw new Error('Error al cargar datos de usuario');
-          
-          const userData = await response.json();
-          this.user = userData;
-          
-          // Guardar en IndexedDB
-          await this.saveToIndexedDB('user', userData);
+        const response = await fetch(`${API_BASE}/users/1`);
+        if (response.ok) {
+          this.user = await response.json();
         }
       } catch (error) {
         console.error('Error al cargar datos de usuario:', error);

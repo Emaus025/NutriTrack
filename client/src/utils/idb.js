@@ -104,7 +104,7 @@ export async function deleteData(storeName, id) {
 
 // Clase para manejar la sincronización
 export class SyncManager {
-  constructor(apiBaseUrl = 'http://localhost:3001') {
+  constructor(apiBaseUrl = (import.meta.env?.VITE_API_BASE || '/api')) {
     this.apiBaseUrl = apiBaseUrl;
   }
 

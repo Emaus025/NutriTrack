@@ -45,8 +45,8 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // No interceptar peticiones a la API
-  if (request.url.includes('/api/') || request.url.includes('localhost:3001')) {
+  // No interceptar peticiones a la API (mismo origen)
+  if (url.pathname.startsWith('/api/')) {
     return;
   }
 

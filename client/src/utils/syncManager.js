@@ -1,5 +1,6 @@
 // Utilidades para sincronización de datos offline-online
 import * as idb from './idb.js';
+import { API_BASE } from './api';
 
 class SyncManager {
   constructor() {
@@ -50,24 +51,16 @@ class SyncManager {
   // Sincronizar todas las comidas pendientes
   async syncPendingMeals() {
     if (!this.isOnline) return { success: false, reason: 'offline' };
-    
     try {
-      // Obtener todas las comidas pendientes
       const pendingMeals = await idb.getAllData('pendingMeals');
       const syncedItems = [];
-      
       for (const meal of pendingMeals) {
         if (meal.synced) continue;
-        
-        // Enviar al servidor
-        const response = await fetch('http://localhost:3001/meals', {
+        const response = await fetch(`${API_BASE}/meals`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(meal)
         });
-        
         if (response.ok) {
           const serverData = await response.json();
           // Actualizar con ID del servidor y marcar como sincronizado
@@ -79,7 +72,6 @@ class SyncManager {
           syncedItems.push(serverData);
         }
       }
-      
       return { success: true, syncedItems };
     } catch (error) {
       console.error('Error al sincronizar comidas:', error);
@@ -90,24 +82,16 @@ class SyncManager {
   // Sincronizar todos los ejercicios pendientes
   async syncPendingWorkouts() {
     if (!this.isOnline) return { success: false, reason: 'offline' };
-    
     try {
-      // Obtener todos los ejercicios pendientes
       const pendingWorkouts = await idb.getAllData('pendingWorkouts');
       const syncedItems = [];
-      
       for (const workout of pendingWorkouts) {
         if (workout.synced) continue;
-        
-        // Enviar al servidor
-        const response = await fetch('http://localhost:3001/workouts', {
+        const response = await fetch(`${API_BASE}/workouts`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(workout)
         });
-        
         if (response.ok) {
           const serverData = await response.json();
           // Actualizar con ID del servidor y marcar como sincronizado
@@ -119,7 +103,6 @@ class SyncManager {
           syncedItems.push(serverData);
         }
       }
-      
       return { success: true, syncedItems };
     } catch (error) {
       console.error('Error al sincronizar ejercicios:', error);
