@@ -9,7 +9,7 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "install:all": "npm install && cd client && npm install",
     "build": "cd client && npm run build",
-    "start": "concurrently \"json-server --watch server/db.json --port 3001\" \"cd client && vite preview --port 3000 --strictPort\"",
+    "start": "concurrently \"json-server --watch server/db.json --host 0.0.0.0 --port 3001\" \"cd client && vite preview --port 3000 --strictPort --host 0.0.0.0\"",
     "test": "jest"
   },
   "keywords": [
