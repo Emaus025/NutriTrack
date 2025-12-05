@@ -61,17 +61,29 @@ export default {
 </script>
 
 <style>
+:root {
+  --primary-header-bg: #4CAF50;
+  --status-bg: #8BC34A;
+  --offline-bg: #F44336;
+  --nav-bg: #388E3C;
+  --nav-active-bg: #2E7D32;
+  --text-color: #333;
+  --body-bg: #f5f5f5;
+  --link-color: #ffffff;
+  --footer-bg: var(--nav-bg);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f5f5; color: #333; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--body-bg); color: var(--text-color); }
 .app-container { display: flex; flex-direction: column; min-height: 100vh; }
-.app-header { background-color: #4CAF50; color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
-.connection-status { font-size: 0.8rem; padding: 0.3rem 0.6rem; border-radius: 1rem; background-color: #8BC34A; }
-.connection-status.offline { background-color: #F44336; }
-.app-nav { background-color: #388E3C; display: flex; overflow-x: auto; }
-.app-nav a { color: white; text-decoration: none; padding: 1rem; white-space: nowrap; }
-.app-nav a.router-link-active { background-color: #2E7D32; }
+.app-header { background-color: var(--primary-header-bg); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+.connection-status { font-size: 0.8rem; padding: 0.3rem 0.6rem; border-radius: 1rem; background-color: var(--status-bg); }
+.connection-status.offline { background-color: var(--offline-bg); }
+.app-nav { background-color: var(--nav-bg); display: flex; overflow-x: auto; }
+.app-nav a { color: var(--link-color); text-decoration: none; padding: 1rem; white-space: nowrap; }
+.app-nav a.router-link-active { background-color: var(--nav-active-bg); }
 .app-content { flex: 1; padding: 1rem; }
-.app-footer { background-color: #388E3C; color: white; text-align: center; padding: 1rem; font-size: 0.8rem; }
+.app-footer { background-color: var(--footer-bg); color: white; text-align: center; padding: 1rem; font-size: 0.8rem; }
 
 /* Skeleton styles para App Shell */
 .skeleton-content { display: grid; gap: 12px; }

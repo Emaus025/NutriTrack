@@ -64,6 +64,7 @@ docker rm "$CONTAINER_NAME" || true
 docker run -d --name "$CONTAINER_NAME" --restart=always \
   -p 127.0.0.1:${FRONT_PORT}:3000 \
   -p 127.0.0.1:${API_PORT}:3001 \
+  -e THEME_COLOR="${DEPLOY_COLOR}" \
   "$IMAGE_TAG"
 
 # Health-check frontend
