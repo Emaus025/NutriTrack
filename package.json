@@ -9,7 +9,8 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "install:all": "npm install && cd client && npm install",
     "build": "cd client && npm run build",
-    "start": "concurrently \"json-server --watch server/db.json --host 0.0.0.0 --port 3001\" \"cd client && vite preview --port 3000 --strictPort --host 0.0.0.0\""
+    "start": "concurrently \"json-server --watch server/db.json --port 3001\" \"cd client && vite preview --port 3000 --strictPort\"",
+    "test": "jest"
   },
   "keywords": [
     "pwa",
@@ -26,5 +27,12 @@
     "quagga": "^0.12.1",
     "vite": "^7.1.7",
     "vue": "^3.5.22"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
