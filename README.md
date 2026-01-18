@@ -1,5 +1,3 @@
-I've reviewed your project based on our previous discussions. Here is a complete README for your NutriTrack Pro repository.
-
 # NutriTrack Pro - PWA de Seguimiento Nutricional
 
 **NutriTrack Pro** es una **Progressive Web App (PWA)** completa para el seguimiento de nutrición y ejercicio, permitiendo a los usuarios registrar su alimentación, controlar su actividad física y recibir notificaciones personalizadas.
